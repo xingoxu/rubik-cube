@@ -48,13 +48,33 @@
     .stage {
       perspective: 500px;
     }
-    .big-cube {
-      margin: 1.5em auto;
+    .cube-line {
       display: flex;
       width: 320px;
       flex-wrap: wrap;
       justify-content: space-between;
+      position: absolute;
       transform-style: preserve-3d;
+    }
+    .cube-line:nth-child(2) {
+      transform: translateZ(-110px);
+    }
+    .cube-line:nth-child(3) {
+      transform: translateZ(-220px);
+    }
+    .big-cube {
+      transform-style: preserve-3d;
+      position: relative;
+      width: 320px;
+      height: 330px;
+      transform-origin: center center -110px;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      height: 100vh;
+      margin: 0;
     }
   </style>
 </head>
@@ -62,13 +82,15 @@
 <body>
   <div class="stage">
     <div class="big-cube">
-      <div class="cube">
-        <div class="front"></div>
-        <div class="back"></div>
-        <div class="left"></div>
-        <div class="right"></div>
-        <div class="top"></div>
-        <div class="bottom"></div>
+      <div class="cube-line">
+        <div class="cube">
+          <div class="front"></div>
+          <div class="back"></div>
+          <div class="left"></div>
+          <div class="right"></div>
+          <div class="top"></div>
+          <div class="bottom"></div>
+        </div>
       </div>
 
     </div>
@@ -83,6 +105,12 @@
     let _cube = document.querySelector('.cube');
     let cubes = [];
     for (let i = 0; i < 8; i++) {
+      cubes.push(_cube.cloneNode(true));
+    }
+    document.querySelector('.cube-line').append(...cubes);
+    cubes = [];
+    _cube = document.querySelector('.cube-line');
+    for (let i = 0; i < 2; i++) {
       cubes.push(_cube.cloneNode(true));
     }
     cube.append(...cubes);
