@@ -42,25 +42,35 @@
       position: relative;
       width: 100px;
       height: 100px;
-      margin: 1.5em auto;
-      transform-style: preserve-3d;
+      margin-top: 10px;
     }
 
     .stage {
       perspective: 500px;
+    }
+    .big-cube {
+      margin: 1.5em auto;
+      display: flex;
+      width: 320px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      transform-style: preserve-3d;
     }
   </style>
 </head>
 
 <body>
   <div class="stage">
-    <div class="cube">
-      <div class="front"></div>
-      <div class="back"></div>
-      <div class="left"></div>
-      <div class="right"></div>
-      <div class="top"></div>
-      <div class="bottom"></div>
+    <div class="big-cube">
+      <div class="cube">
+        <div class="front"></div>
+        <div class="back"></div>
+        <div class="left"></div>
+        <div class="right"></div>
+        <div class="top"></div>
+        <div class="bottom"></div>
+      </div>
+
     </div>
   </div>
   <script>
@@ -69,7 +79,13 @@
       y = 0,
       z = 0;
     let startPoint = { x: 0, y: 0 };
-    let cube = document.querySelector('.cube');
+    let cube = document.querySelector('.big-cube');
+    let _cube = document.querySelector('.cube');
+    let cubes = [];
+    for (let i = 0; i < 8; i++) {
+      cubes.push(_cube.cloneNode(true));
+    }
+    cube.append(...cubes);
     document.addEventListener("pointerdown", (event) => {
       pointerIsDown = true;
       startPoint = { x: event.x, y: event.y };
