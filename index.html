@@ -10,7 +10,8 @@
       width: 100px;
       height: 100px;
       background-color: rgba(100, 100, 100, 0.5);
-      border: 1px solid red;
+      border: 5px solid black;
+      border-radius: 5px;
       position: absolute;
     }
 
@@ -95,49 +96,7 @@
 
     </div>
   </div>
-  <script>
-    let pointerIsDown = false;
-    let x = 0,
-      y = 0,
-      z = 0;
-    let startPoint = { x: 0, y: 0 };
-    let cube = document.querySelector('.big-cube');
-    let _cube = document.querySelector('.cube');
-    let cubes = [];
-    for (let i = 0; i < 8; i++) {
-      cubes.push(_cube.cloneNode(true));
-    }
-    document.querySelector('.cube-line').append(...cubes);
-    cubes = [];
-    _cube = document.querySelector('.cube-line');
-    for (let i = 0; i < 2; i++) {
-      cubes.push(_cube.cloneNode(true));
-    }
-    cube.append(...cubes);
-    document.addEventListener("pointerdown", (event) => {
-      pointerIsDown = true;
-      startPoint = { x: event.x, y: event.y };
-    });
-    document.addEventListener("pointermove", (event) => {
-      if (!pointerIsDown) return;
-      let xNow = (event.x - startPoint.x) + x;
-      let yNow = (event.y - startPoint.y) * (-1) + y;
-      // // if (xNow > 90) xNow = 90;
-      if (yNow > 90) yNow = 90;
-      // // if (xNow < -90) xNow = -90;
-      if (yNow < -90) yNow = -90;
-      cube.setAttribute('style', `transform: rotateX(${yNow}deg) rotateY(${xNow}deg)`);
-    });
-    document.addEventListener("pointerup", (event) => {
-      pointerIsDown = false;
-      x = (event.x - startPoint.x) + x;
-      y = (event.y - startPoint.y) * (-1) + y;
-      // if (x > 90) x = 90;
-      if (y > 90) y = 90;
-      // if (x < -90) x = -90;
-      if (y < -90) y = -90;
-    });
-  </script>
+  <script src="./main.js"></script>
 </body>
 
 </html>
