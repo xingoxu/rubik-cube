@@ -36,6 +36,10 @@ cubes = [].slice.call(document.querySelectorAll('.cube'));
   for (let i = 0; i < cubes.length; i++) {
     const el = cubes[i];
     console.log(x, y, z, el);
+    let transformOriginX = 160 + (x * (-110));
+    let transformOriginY = 0;
+    let transformOriginZ = -110 + 110 * z;
+    el.style.transformOrigin = `${transformOriginX}px ${transformOriginY}px ${transformOriginZ}px`;
     cb[x][y][z] = el;
     x += 1;
     if (x === 3) {
@@ -114,3 +118,14 @@ document.addEventListener("pointerup", (event) => {
   // if (x < -90) x = -90;
   if (y < -90) y = -90;
 });
+
+let tsY = 0;
+document.querySelector('#upper').addEventListener('click', (event) => {
+  tsY += 90;
+  for (let x = 0; x < cubes.length; x++) {
+    const line = cubes[x][0];
+    for (let z = 0; z < line.length; z++) {
+      line[z].style.transform = `rotateY(${tsY}deg)`;
+    }
+  }
+})
