@@ -9,7 +9,7 @@ const color = {
   black: [0, 0, 0, 1],
 };
 
-const cb = [...Array(3)].map(x => [...Array(3)].map(x => [...Array(3)]));
+let cb = [...Array(3)].map(x => [...Array(3)].map(x => [...Array(3)]));
 
 let pointerIsDown = false;
 let x = 0,
@@ -37,7 +37,7 @@ cubes = [].slice.call(document.querySelectorAll('.cube'));
     const el = cubes[i];
     console.log(x, y, z, el);
     let transformOriginX = 160 + (x * (-110));
-    let transformOriginY = 0;
+    let transformOriginY = 160 + (y * (-110));
     let transformOriginZ = -110 + 110 * z;
     el.style.transformOrigin = `${transformOriginX}px ${transformOriginY}px ${transformOriginZ}px`;
     cb[x][y][z] = el;
@@ -54,6 +54,7 @@ cubes = [].slice.call(document.querySelectorAll('.cube'));
 }
 
 cubes = cb;
+cb = [...Array(3)].map(x => [...Array(3)].map(x => [...Array(3)]));
 {
   for (let x = 0; x < cubes.length; x++) {
     const face = cubes[x];
@@ -87,6 +88,7 @@ cubes = cb;
         if (z === 2) {
           colorInstance.back = color.green;
         }
+        cb[x][y][z] = colorInstance;
         Object.keys(colorInstance).map(key => {
           singleCube.querySelector(`.${key}`).style.background = `rgba(${colorInstance[key].join(',')})`;
         })
@@ -96,6 +98,7 @@ cubes = cb;
 }
 
 document.addEventListener("pointerdown", (event) => {
+  console.log(event.target);
   pointerIsDown = true;
   startPoint = { x: event.x, y: event.y };
 });
@@ -119,13 +122,85 @@ document.addEventListener("pointerup", (event) => {
   if (y < -90) y = -90;
 });
 
-let tsY = 0;
-document.querySelector('#upper').addEventListener('click', (event) => {
-  tsY += 90;
+function cubeRotateY(cube) {
+  let temp = cube.left;
+  cube.left = cube.back;
+  cube.back = cube.right;
+  cube.right = cube.front;
+  cube.front = temp;
+  return cube;
+}
+function cloneCubes(cubes) {
+  return cubes.map(face => face.map(line => line.slice()));
+}
+
+document.querySelector('#upper').addEventListener('click', async (event) => {
+  let clone = cloneCubes(cb);
+  const promises = [];
   for (let x = 0; x < cubes.length; x++) {
     const line = cubes[x][0];
     for (let z = 0; z < line.length; z++) {
-      line[z].style.transform = `rotateY(${tsY}deg)`;
+      clone[Math.abs(z - 2)][0][x] = cubeRotateY(cb[x][0][z]);
+      line[z].style.transition = `.3s transform`;
+      line[z].style.transform = `rotateY(${90}deg)`;
+      promises.push(new Promise(resolve => {
+        line[z].addEventListener('transitionend', resolve);
+        setTimeout(resolve, 310);
+      }));
+    }
+  }
+  cb = clone;
+
+  await Promise.all(promises);
+  for (let x = 0; x < cubes.length; x++) {
+    const line = cubes[x][0];
+    for (let z = 0; z < line.length; z++) {
+      let colorInstance = cb[x][0][z];
+      Object.keys(colorInstance).map(key => {
+        cubes[x][0][z].querySelector(`.${key}`).style.background = `rgba(${colorInstance[key].join(',')})`;
+      })
+      line[z].style.transition = ``;
+      line[z].style.transform = ``;
+    }
+  }
+})
+
+function cubeRotateX(cube) {
+  let temp = cube.front;
+  cube.front = cube.top;
+  cube.top = cube.back;
+  cube.back = cube.bottom;
+  cube.bottom = temp;
+  return cube;
+}
+
+document.querySelector('#left').addEventListener('click', async (event) => {
+  let clone = cloneCubes(cb);
+  const promises = [];
+  for (let y = 0; y < cubes[0].length; y++) {
+    const line = cubes[0][y];
+    for (let z = 0; z < line.length; z++) {
+      clone[0][Math.abs(z - 2)][y] = cubeRotateX(cb[0][y][z]);
+      line[z].style.transition = `.3s transform`;
+      line[z].style.transform = `rotateX(${-90}deg)`;
+      promises.push(new Promise(resolve => {
+        line[z].addEventListener('transitionend', resolve);
+        setTimeout(resolve, 310);
+      }));
+    }
+  }
+  cb = clone;
+
+  await Promise.all(promises);
+  for (let y = 0; y < cubes[0].length; y++) {
+    const line = cubes[0][y];
+    for (let z = 0; z < line.length; z++) {
+      let colorInstance = cb[0][y][z];
+      Object.keys(colorInstance).map(key => {
+        cubes[0][y][z].querySelector(`.${key}`).style.background = `rgba(${colorInstance[key].join(',')})`;
+      })
+      line[z].style.transition = ``;
+      line[z].style.transform = ``;
     }
   }
 })
