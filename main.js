@@ -31,6 +31,7 @@ for (let i = 0; i < 2; i++) {
 cube.append(...cubes);
 
 cubes = [].slice.call(document.querySelectorAll('.cube'));
+let cubesE = cubes;
 {
   let x = 0, y = 0, z = 0;
   for (let i = 0; i < cubes.length; i++) {
@@ -98,10 +99,54 @@ cb = [...Array(3)].map(x => [...Array(3)].map(x => [...Array(3)]));
 }
 
 document.addEventListener("pointerdown", (event) => {
-  console.log(event.target);
+  // console.log(event.target);
   pointerIsDown = true;
   startPoint = { x: event.x, y: event.y };
 });
+
+let cubeStartPoint = { x: 0, y: 0 };
+let cubeDoing = null;
+let direction = null;
+cubesE.forEach(el => {
+  el.addEventListener('pointerdown', (event) => {
+    console.log(event.target.className, el);
+    pointerIsDown = true;
+    cubeStartPoint = { x: event.x, y: event.y };
+    for (let i = 0; i < cubes.length; i++) {
+      const face = cubes[i];
+      for (let j = 0; j < face.length; j++) {
+        const line = face[j];
+        for (let k = 0; k < line.length; k++) {
+          const element = line[k];
+          if (element === el) {
+            cubeDoing = `${i}-${j}-${k}`;
+          }
+        }
+      }
+    }
+    event.stopPropagation();
+  })
+  el.addEventListener('pointermove', event => {
+    if (!pointerIsDown) return;
+    let xNow = (event.x - cubeStartPoint.x);
+    let yNow = (event.y - cubeStartPoint.y) * (-1);
+    direction = Math.abs(xNow) > Math.abs(yNow) ?
+      (xNow > 0 ? 'right' : 'left') : (yNow > 0 ? 'up' : 'down');
+
+    event.stopPropagation();
+  })
+  // TODO
+  el.addEventListener('pointerup', event => {
+    if (direction === 'right') {
+      const [x, y, z] = cubeDoing.split('-');
+      rotateX(y);
+    }
+    console.log(direction);
+    pointerIsDown = false;
+    event.stopPropagation();
+  })
+});
+
 document.addEventListener("pointermove", (event) => {
   if (!pointerIsDown) return;
   let xNow = (event.x - startPoint.x) + x;
@@ -134,13 +179,13 @@ function cloneCubes(cubes) {
   return cubes.map(face => face.map(line => line.slice()));
 }
 
-document.querySelector('#upper').addEventListener('click', async (event) => {
+async function rotateX(lineX) {
   let clone = cloneCubes(cb);
   const promises = [];
   for (let x = 0; x < cubes.length; x++) {
-    const line = cubes[x][0];
+    const line = cubes[x][lineX];
     for (let z = 0; z < line.length; z++) {
-      clone[Math.abs(z - 2)][0][x] = cubeRotateY(cb[x][0][z]);
+      clone[Math.abs(z - 2)][lineX][x] = cubeRotateY(cb[x][lineX][z]);
       line[z].style.transition = `.3s transform`;
       line[z].style.transform = `rotateY(${90}deg)`;
       promises.push(new Promise(resolve => {
@@ -153,17 +198,21 @@ document.querySelector('#upper').addEventListener('click', async (event) => {
 
   await Promise.all(promises);
   for (let x = 0; x < cubes.length; x++) {
-    const line = cubes[x][0];
+    const line = cubes[x][lineX];
     for (let z = 0; z < line.length; z++) {
-      let colorInstance = cb[x][0][z];
+      let colorInstance = cb[x][lineX][z];
       Object.keys(colorInstance).map(key => {
-        cubes[x][0][z].querySelector(`.${key}`).style.background = `rgba(${colorInstance[key].join(',')})`;
+        cubes[x][lineX][z].querySelector(`.${key}`).style.background = `rgba(${colorInstance[key].join(',')})`;
       })
       line[z].style.transition = ``;
       line[z].style.transform = ``;
     }
   }
-})
+}
+
+document.querySelector('#upper').addEventListener('click',  (event) => {
+  rotateX(0);
+});
 
 function cubeRotateX(cube) {
   let temp = cube.front;
